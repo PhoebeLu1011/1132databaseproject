@@ -1,5 +1,6 @@
 # 1132databaseproject-智慧健康照護系統
 ## 第一次期末專題審查: https://youtu.be/zGECzMfDIlo
+## 第二次進度追蹤: https://youtu.be/Yu9yWfvPdxs
 ## 組員
 科技116 盧姵帆、王玟晽
 ### 動機:
