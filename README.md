@@ -1,6 +1,7 @@
 # 1132databaseproject-智慧健康照護系統
 ## 第一次期末專題審查: https://youtu.be/zGECzMfDIlo
 ## 第二次進度追蹤: https://youtu.be/Yu9yWfvPdxs
+## 期末專題成果: https://youtu.be/M9ZH6aVXVII
 ## 組員
 科技116 盧姵帆、王玟晽
 ### 動機:
@@ -8,7 +9,6 @@
 ### 目標:
 本專題旨在開發一個智慧健康照護系統，運用病患的病歷，讓病患能夠輸入自身病歷摘要，透過 AI 自動產生每日飲食建議與簡易可以舒緩病症的復健方法與步驟，並整合 Google Calendar與其他平台，提供每日提醒，協助患者持續自主執行健康管理。
 ### 流程圖:
-![圖片描述](imageforproject/image01.png)
 ### 使用到的技術：
 1.作業一: 利用ai agent 生成每日菜單與建議\
 2. 利用playwright登入google日曆等系統將建議與菜單放置日曆中
