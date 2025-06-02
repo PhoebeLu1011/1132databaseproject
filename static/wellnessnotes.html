@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>Wellness Notes</title>
+        <style>
+          body {
+            background-color: #fef3e2;
+            font-family: Arial, sans-serif;
+            padding: 30px;
+            color: #333;
+          }
+          .back-button {
+            display: inline-block;
+            font-size: 20px;
+            font-weight: bold;
+            background-color: white;
+            color: #333;
+            border-radius: 50%;
+            padding: 6px 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            cursor: pointer;
+            margin-bottom: 20px;
+          }
+          h1 { font-size: 28px; margin-bottom: 5px; }
+          .subtitle { color: #777; margin-bottom: 20px; }
+          .input-btn {
+            background-color:   #ece4f7;
+            color: #5a4c7a;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+          }
+          
+          .input-btn:hover {
+            background-color: #5a4c7a;
+            color: #ece4f7;
+            transition: 0.2s;
+          }
+          .entry-card {
+            background-color: #fffefc;
+            border-radius: 12px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+            padding: 15px 20px;
+            margin-bottom: 20px;
+          }
+          .see-more-btn {
+            background-color: transparent;
+            color: #333;
+            border: 1px solid  #333;
+            border-radius: 10px;
+            padding: 8px 15px;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+          }
+
+          .see-more-btn:hover {
+            background-color: rgba(0, 0, 0, 0.05); /* 淺灰 hover 背景 */
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+          }
+        </style>
+        <script src="lang.js"></script>
+    </head>
+    <body>
+        <div class="back-button" onclick="location.href='main.html'">←</div>
+        <h1>
+          Daily Wellness Notes
+        </h1>
+        <p class="subtitle" id="subtitle3">How Are You Feeling Today?</p>
+        <button class="input-btn" id="inputbtn" onclick="location.href='enter-notes.html'">Input</button>
+
+        <div id="entry-container"></div>
+
+        <script>
+            const container = document.getElementById("entry-container");
+            const entries = JSON.parse(localStorage.getItem("wellnessEntries") || "[]");
+            entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            entries.forEach(entry => {
+                const card = document.createElement("div");
+                card.className = "entry-card";
+
+                const h2 = document.createElement("h2");
+                h2.textContent = entry.date;
+
+                const p = document.createElement("p");
+                p.textContent = entry.reflection.length > 100
+                    ? entry.reflection.slice(0, 100) + "..."
+                    : entry.reflection;
+
+                const btn = document.createElement("button");
+                btn.className = "see-more-btn";
+                btn.textContent = currentLang === "zh-TW" ? "查看更多" : "See More";
+                
+                let expanded = false;
+                btn.onclick = () => {
+                  if(!expanded){
+                    p.textContent = entry.reflection;
+                    btn.textContent = currentLang === "zh-TW" ? "顯示更少" : "Close";
+                  }else{
+                    p.textContent = entry.reflection.length > 100
+                       ? entry.reflection.slice(0,100)+ "..."
+                       : entry.reflection;
+                    btn.textContent = currentLang === "zh-TW" ? "查看更多" : "See More";
+                  }
+                  expanded = !expanded;
+                }
+
+                card.appendChild(h2);
+                card.appendChild(p);
+                card.appendChild(btn);
+                container.appendChild(card);
+            });
+            function updatewellnessnotesLangUI(){
+              if (currentLang === 'zh-TW') {
+                document.querySelector('title').textContent = '每日心情紀錄';
+                document.querySelector('h1').textContent = '每日心情紀錄';
+                document.querySelector('#subtitle3').textContent = '你今天感覺如何？';
+                document.querySelector('#inputbtn').textContent = '輸入';
+        
+              }
+            }
+            document.addEventListener('DOMContentLoaded',updatewellnessnotesLangUI);
+        </script>
+    </body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>MediMate - Home</title>
+  <style>
+    body {
+      background-color: #fef3e2;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .search-bar {
+      background-color: #f7b7a3;
+      padding: 10px 15px;
+      border-radius: 25px;
+      width: 65%;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-bar input {
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 16px;
+      flex-grow: 1;
+    }
+
+    .icons {
+      display: flex;
+      gap: 15px;
+      font-size: 22px;
+      margin-left: 10px;
+    }
+
+    .card {
+      background-color: white;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 30px 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .card h2 {
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-info img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+    }
+
+    .buttons-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .main-button {
+      background-color: #ece4f7;
+      color: #5a4c7a;
+      font-weight: bold;
+      border: none;
+      border-radius: 16px;
+      padding: 25px;
+      font-size: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      cursor: pointer;
+    }
+
+    .main-button:hover {
+      opacity: 0.9;
+    }
+
+    .search-suggestions {
+      margin-top: 10px;
+      background: white;
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .icon {
+        cursor: pointer;
+    }
+    #chat-entry {
+      background-color: #f7b7a3;
+      padding: 10px 15px;
+      border-radius: 25px;
+      width: 65%;
+      align-items: center;
+      cursor: pointer;
+      display: inline-block;
+      color: #4a4a4a;
+    }
+    #chat-entry:hover {
+      background-color: #fd815b;
+      transition: 0.2s;
+    }
+  </style>
+  <script src="lang.js"></script>
+</head>
+<body>
+
+  <div class="top-bar">
+    <div id="chat-entry">How was your day today?</div>
+    <div class="icons">
+      <span class="icon" onclick="location.href='setting.html'">⚙️</span>
+      <span class="icon" onclick="location.href='profile.html'">👤</span>
+    </div>
+  </div>
+
+  <div class="search-suggestions" id="suggestions"></div>
+
+  <div class="card">
+    <h2>Hello ! How are you today?</h2>
+    <div class="user-info">
+      <div class="avatar" id="avatar">?</div>
+      <div id="suggestionText">
+        <strong>User Name</strong><br>
+      </div>
+    </div>
+  </div>
+
+  <div class="buttons-grid">
+    <button id="btnMedical" class="main-button" onclick="location.href='medical.html'">Medical Records</button>
+    <button id="btnEnter" class="main-button" onclick="location.href='enter.html'">Enter Medical Info</button>
+    <button id="btnWellness" class="main-button" onclick="location.href='wellness.html'">Wellness Dashboard</button>
+    <button id="btnNotes" class="main-button" onclick="location.href='wellnessnotes.html'">Daily Wellness Notes</button>
+  </div>
+  <script>
+    function loadUserData() {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      if (!userData) return;
+  
+      // 顯示頭像
+      const avatarDiv = document.getElementById("avatar");
+      if (userData.avatar) {
+        avatarDiv.innerHTML = `<img src="${userData.avatar}" alt="avatar" style="width:40px;height:40px;border-radius:50%;">`;
+      } else {
+        avatarDiv.textContent = userData.name.charAt(0).toUpperCase();
+        avatarDiv.style = "width:40px;height:40px;background:#f29191;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:bold;";
+      }
+  
+      // 顯示名字與建議文字
+      const suggestionTextDiv = document.getElementById("suggestionText");
+      suggestionTextDiv.innerHTML = `
+        <strong>${userData.name}</strong><br>
+        <span style="font-size: 14px; color: gray;">${todaySuggestion}</span>
+      `;
+    }
+  
+    const suggestionsBox = document.getElementById("suggestions");
+    
+  
+    // 畫面載入完成後自動執行
+    window.onload = function () {
+      loadUserData();
+    };
+
+    function updatemainLangUI(){
+      if (currentLang === 'zh-TW') {
+        document.querySelector('h2').textContent = '歡迎回來，你今天一切還好嗎？';
+        document.querySelector('#btnMedical').textContent = '病歷紀錄';
+        document.querySelector('#btnEnter').textContent = '填寫病歷資料';
+        document.querySelector('#btnWellness').textContent = '健康儀表板';
+        document.querySelector('#btnNotes').textContent = '每日心得記錄';
+        document.querySelector('#chat-entry').textContent = '今天過得如何?';
+      }
+    }
+    document.addEventListener('DOMContentLoaded',updatemainLangUI);
+    document.getElementById("chat-entry").addEventListener("click", () => {
+    window.open("moodhelper.html", "MoodChat", "width=500,height=600");
+    });
+  </script>

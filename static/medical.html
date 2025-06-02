@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html> 
+<head>
+  <meta charset="UTF-8">
+  <title>Medical Records</title>
+  <style>
+    body {
+      background-color: #fef3e2;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    .back-button {
+      display: inline-block;
+      font-size: 20px;
+      font-weight: bold;
+      background-color: white;
+      color: #333;
+      border-radius: 50%;
+      padding: 6px 12px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0;
+    }
+
+    .subtitle {
+      color: gray;
+      margin-bottom: 30px;
+    }
+
+    .record {
+      margin-bottom: 30px;
+      background-color: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .record h2 {
+      font-size: 18px;
+      margin: 0 0 10px 0;
+    }
+
+    .record p {
+      margin: 0 0 10px 0;
+    }
+
+    .record button {
+      padding: 6px 12px;
+      background-color: white;
+      border: 1px solid gray;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .record button:hover {
+      background-color: #ddd;
+    }
+  </style>
+  <script src="lang.js"></script>
+</head>
+<body>
+  <div class="back-button" onclick="window.location.href='main.html'">🏠</div>
+  
+  <div class="back-button" onclick="history.back()">←</div>
+
+  <h1 id="pageTitle">Medical Records</h1>
+  <p class="subtitle" id="pageSubtitle">Your health story, organized for you.</p>
+
+<div id="recordContainer"></div>
+
+<script>
+    const currentLang = navigator.language.startsWith("zh") ? "zh-TW" : "en";
+    document.addEventListener('DOMContentLoaded', () => {
+    const records = JSON.parse(localStorage.getItem("medicalRecords") || "[]");
+    const container = document.getElementById("recordContainer");
+    records.sort((a, b) => new Date(b.date) - new Date(a.date));
+    if (records.length === 0) {
+      container.innerHTML = '<p id="noRecordMsg">No records found.</p>';
+    } 
+    else {
+      records.forEach((rec, index) => {
+        const card = document.createElement("div");
+        card.className = "record";
+        card.innerHTML = `
+          <h2>${rec.date}</h2>
+          <p>${rec.summary || rec.thisname || "Summary is being generated..."}</p>
+          <button class="btn-seemore" onclick="viewDetail('${rec.date}')">See More</button>
+          <button class="btn-askai" onclick="askAI('${rec.date}')">Get AI Suggestions</button>
+          <button class="btn-delete" onclick="deleteRecord('${rec.date}')">🗑 Delete</button>
+        `;
+        container.appendChild(card);
+      });
+    }
+    updateMedicalLangUI();
+  })
+    function viewDetail(date) {
+      localStorage.setItem("selectedRecord", date);
+      window.location.href = "medical-detail.html";
+    }
+    function askAI(date) {
+      const records = JSON.parse(localStorage.getItem("medicalRecords") || "[]");
+      const selected = records.find(r => r.date === date);
+      const wellnessData = JSON.parse(localStorage.getItem("wellnessData") || "[]");
+
+      if (wellnessData.length >= 20) {
+        let alertMes = "⚠️You've reached the maximum. Please keep fewer than 20 entries in the wellness dashboard.";
+        
+        if (currentLang === "zh-TW") {
+          alertMes = "⚠️已達上限，請先刪減儀表板裡的資料至 20 筆以下";
+        }
+        alert(alertMes);
+      return;
+    }
+
+      const alreadyExists = wellnessData.some(item => item.date === selected.date);
+      if (alreadyExists) {
+         let alertMess = `⚠️AI feedback for ${selected.date} already exists. Delete before resubmitting.`;
+        if (currentLang === "zh-TW") {
+          alertMess = `⚠️ ${selected.date} 的 AI 回覆已經存在囉！請先刪除再重新送出。`;
+        }
+        alert(alertMess);
+        return;
+      }
+      const loadedFlag = `wellnessLoaded-${selected.date}`;
+      sessionStorage.setItem("selectedRecord", JSON.stringify(selected));
+      window.location.href = "loading.html";
+    }
+    function deleteRecord(date) {
+      let confirmMsg = "Are you sure you want to delete this record?";
+      if (currentLang === "zh-TW") {
+        confirmMsg = "確定要刪除這筆紀錄嗎？";
+      }
+
+      if (!confirm(confirmMsg)) return;
+      
+        const records = JSON.parse(localStorage.getItem("medicalRecords") || "[]");
+        const updated = records.filter(r => r.date !== date); // ✅ 保留其他資料
+        localStorage.setItem("medicalRecords", JSON.stringify(updated));
+        location.reload();
+}
+
+
+    function updateMedicalLangUI() {
+      const msg = document.getElementById('noRecordMsg');
+      if (msg) msg.textContent = '尚無紀錄';
+      if (currentLang === 'zh-TW') {
+        document.getElementById('pageTitle').textContent = '健康紀錄';
+        document.getElementById('pageSubtitle').textContent = '為你整理的健康歷程';
+
+        document.querySelectorAll('.btn-seemore').forEach(btn => {
+          btn.textContent = '查看更多';
+        });
+        document.querySelectorAll('.btn-askai').forEach(btn => {
+          btn.textContent = '取得 AI 建議';
+        });
+        document.querySelectorAll('.btn-delete').forEach(btn => {
+          btn.textContent = '🗑 刪除';
+        });
+    }
+    }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Medical Record Details</title>
+  <style>
+    body {
+      background-color: #fef3e2;
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      max-width: 700px;
+      margin: auto;
+      color: #333;
+    }
+
+    h2 {
+      margin-bottom: 5px;
+    }
+
+    .subtitle {
+      color: gray;
+      margin-bottom: 25px;
+    }
+
+    .question {
+      font-weight: bold;
+      color: #f27a30;
+      margin-top: 20px;
+    }
+
+    .answer {
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+
+    button {
+      margin-top: 30px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #aaa;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+  </style>
+  <script src="lang.js"></script>
+</head>
+<body>
+
+  <h2 id="recordDate">2025/04/13</h2>
+  <div class="subtitle" id="thisname"></div>
+
+  <div class="question" id="qu1">Any significant medical history?</div>
+  <div class="answer" id="q1"></div>
+
+  <div class="question" id="qu2">Your current symptoms or discomfort</div>
+  <div class="answer" id="q2"></div>
+
+  <div class="question" id="qu3">Lifestyle habits</div>
+  <div class="answer" id="q3"></div>
+
+  <div class="question" id="qu4">Additional symptoms</div>
+  <div class="answer" id="q4"></div>
+
+  <div class="question" id="qu5">Doctor diagnosed condition</div>
+  <div class="answer" id="q5"></div>
+
+  <div class="question" id="qu6">Specific concerns</div>
+  <div class="answer" id="q6"></div>
+
+  <div class="question" id="qu7">Age</div>
+  <div class="answer" id="q7"></div>
+
+  <button id="bbackbtn"onclick="history.back()">Back</button>
+
+  <script>
+    const selectedDate = localStorage.getItem("selectedRecord");
+    const records = JSON.parse(localStorage.getItem("medicalRecords") || "[]");
+    const r = records.find(item => item.date === selectedDate);
+    if (selectedDate && r) {
+      document.getElementById("thisname").textContent = r.thisname || "N/A"; 
+      document.getElementById("recordDate").textContent = r.date || "N/A";
+      document.getElementById("q1").textContent = r.q1 || "N/A";
+      document.getElementById("q2").textContent = r.q2 || "N/A";
+      document.getElementById("q3").textContent = r.q3 || "N/A";
+      document.getElementById("q4").textContent = r.q4 || "N/A";
+      document.getElementById("q5").textContent = r.q5 || "N/A";
+      document.getElementById("q6").textContent = r.q6 || "N/A";
+      document.getElementById("q7").textContent = r.q7 || "N/A";
+    } else {
+      alert("Record not found.");
+      window.location.href = "medical.html";
+    }
+  
+  function updateenterLangUI(){ 
+
+    if (currentLang === 'zh-TW') { 
+
+      document.querySelector('title').textContent = '詳細健康資料' 
+
+      document.querySelector('#qu1').textContent = '請問有無重大病史？'; 
+
+      document.querySelector('#qu2').textContent = '目前有哪些不適的情況？'; 
+
+      document.querySelector('#qu3').textContent = '生活習慣'; 
+
+      document.querySelector('#qu4').textContent = '目前是否有在服用任何藥物或其他治療'; 
+
+      document.querySelector('#qu5').textContent = '是否有經醫師診斷的結果'; 
+
+      document.querySelector('#qu6').textContent = '其他健康疑慮'; 
+
+      document.querySelector('#qu7').textContent = '年齡'; 
+
+      document.querySelector('#bbackbtn').textContent = '回上一頁' 
+    } 
+  } 
+  document.addEventListener('DOMContentLoaded',updateenterLangUI); 
+  </script>
+
+</body>
+</html>

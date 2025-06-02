@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Personal Info</title>
+  <style>
+    body {
+      background-color: #fef3e2;
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background-color: #333;
+      color: white;
+      font-size: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+      overflow: hidden;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .userinfo {
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .userinfo b {
+      display: block;
+      font-size: 16px;
+      margin-top: 5px;
+    }
+
+    .form-group {
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    input:disabled, select:disabled {
+      background-color: #f3f3f3;
+      color: #888;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 15px;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .edit-btn {
+      background-color: #333;
+      color: white;
+      border: none;
+    }
+
+    .back-btn {
+      background-color: white;
+      color: black;
+      border: 1px solid #ccc;
+    }
+
+    #finishBtn {
+      display: none;
+    }
+
+    #upload {
+      display: none;
+    }
+
+    .upload-label {
+      display: inline-block;
+      margin-top: 10px;
+      font-size: 13px;
+      color: #555;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  </style>
+  <script src="lang.js"></script>
+</head>
+<body>
+
+  <div class="avatar" id="avatar">?</div>
+  <label for="upload" class="upload-label">Change Photo</label>
+  <input type="file" id="upload" accept="image/*" onchange="previewAvatar()" />
+
+  <div class="userinfo">
+    <b id="profileNameDisplay">Name</b>
+  </div>
+
+  <form>
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input id="name" type="text" disabled />
+    </div>
+
+    <div class="form-group">
+      <label for="birth">Birth Date (Y/M/D)</label>
+      <input id="birth" type="date" disabled />
+    </div>
+
+    <div class="form-group">
+      <label for="gender">Gender</label>
+      <select id="gender" disabled>
+        <option value="Female">Female</option>
+        <option value="Male">Male</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="height">Height (meters)</label>
+      <input id="height" type="number" step="0.01" disabled />
+    </div>
+
+    <div class="form-group">
+      <label for="weight">Weight (kg)</label>
+      <input id="weight" type="number" step="0.1" disabled />
+    </div>
+
+    <div class="form-group">
+      <label for="bmi">BMI</label>
+      <input id="bmi" type="text" disabled />
+    </div>
+
+    <button type="button" class="edit-btn" id="editBtn" onclick="enableEdit()">Edit</button>
+    <button type="button" class="edit-btn" id="finishBtn" onclick="saveEditedData()">Finish</button>
+    <button type="button" class="back-btn" id="back-btn" onclick="location.href='main.html'">Back</button>
+  </form>
+
+  <script>
+    function loadUserData() {
+      const userData = JSON.parse(localStorage.getItem("userData"));
+      if (!userData) return;
+
+      document.getElementById("name").value = userData.name;
+      document.getElementById("profileNameDisplay").textContent = userData.name;
+      document.getElementById("birth").value = userData.birth;
+      document.getElementById("gender").value = userData.gender;
+      document.getElementById("height").value = userData.height || "";
+      document.getElementById("weight").value = userData.weight || "";
+      calculateBMI();
+
+      const avatarDiv = document.getElementById("avatar");
+      if (userData.avatar) {
+        avatarDiv.innerHTML = `<img src="${userData.avatar}" alt="avatar" />`;
+      } else {
+        avatarDiv.textContent = userData.name.charAt(0).toUpperCase();
+      }
+    }
+
+    function enableEdit() {
+      document.getElementById("name").disabled = false;
+      document.getElementById("birth").disabled = false;
+      document.getElementById("gender").disabled = false;
+      document.getElementById("height").disabled = false;
+      document.getElementById("weight").disabled = false;
+
+
+      document.getElementById("editBtn").style.display = "none";
+      document.getElementById("finishBtn").style.display = "block";
+    }
+
+    function saveEditedData() {
+      const updatedUser = {
+        name: document.getElementById("name").value,
+        birth: document.getElementById("birth").value,
+        gender: document.getElementById("gender").value,
+        height: document.getElementById("height").value,
+        weight: document.getElementById("weight").value,
+        avatar: localStorage.getItem("avatar") || null
+      };
+
+      localStorage.setItem("userData", JSON.stringify(updatedUser));
+      alert("✔ Info updated!");
+
+      document.getElementById("name").disabled = true;
+      document.getElementById("birth").disabled = true;
+      document.getElementById("gender").disabled = true;
+      document.getElementById("height").disabled = true;
+      document.getElementById("weight").disabled = true;
+      document.getElementById("editBtn").style.display = "block";
+      document.getElementById("finishBtn").style.display = "none";
+
+      loadUserData(); // 更新畫面
+    }
+
+    function previewAvatar() {
+      const file = document.getElementById("upload").files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const base64 = e.target.result;
+        localStorage.setItem("avatar", base64);
+        document.getElementById("avatar").innerHTML = `<img src="${base64}" alt="avatar" />`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    window.onload = loadUserData;
+
+    function updateprofileLangUI(){
+      if (currentLang === 'zh-TW') {
+        document.querySelector('title').textContent = '個人資料'
+        document.querySelector('label[for="upload"]').textContent = '更換個人頭像';
+        document.querySelector('label[for="name"]').textContent = '姓名';
+        document.querySelector('label[for="birth"]').textContent = '出生年月日';
+        document.querySelector('label[for="gender"]').textContent = '性別';
+        const genderOptions = document.querySelectorAll('#gender option');
+        genderOptions.forEach(option => {
+          switch (option.value) {
+            case 'Female':
+              option.textContent = '女性';
+              break;
+            case 'Male':
+              option.textContent = '男性';
+              break;
+            case 'Other':
+              option.textContent = '其他';
+            break;
+          }
+        });
+        document.querySelector('label[for="height"]').textContent = '身高（公尺）';
+        document.querySelector('label[for="weight"]').textContent = '體重（公斤）';
+        document.querySelector('label[for="bmi"]').textContent = '身體質量指數（BMI）';
+        document.querySelector('#editBtn').textContent = '編輯';
+        document.querySelector('#finishBtn').textContent = '完成'
+        document.querySelector('#back-btn').textContent = '回首頁'
+        
+      }
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      updateprofileLangUI();
+
+      document.getElementById("height").addEventListener("input", calculateBMI);
+      document.getElementById("weight").addEventListener("input", calculateBMI);
+    });
+
+
+    function calculateBMI() {
+      const h = parseFloat(document.getElementById("height").value);
+      const w = parseFloat(document.getElementById("weight").value);
+      const bmiField = document.getElementById("bmi");
+      if (h && w) {
+        const bmi = (w / (h * h)).toFixed(2);
+        bmiField.value = bmi;
+      } else {
+        bmiField.value = "";
+      }
+    }
+
+  </script>
+
+</body>
+</html>

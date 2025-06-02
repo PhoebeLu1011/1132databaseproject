@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>AI Helper</title>
+  <style>
+    body {
+      background-color: #fef3e2;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      margin: 0;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .header button {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .chat-area {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 80px;
+    }
+
+    .user-msg, .bot-msg {
+      max-width: 70%;
+      padding: 10px 15px;
+      border-radius: 20px;
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .user-msg {
+      align-self: flex-end;
+      background-color: #f29191;
+      color: white;
+    }
+
+    .bot-msg {
+      align-self: flex-start;
+      background-color: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .input-area {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .input-area input {
+      flex-grow: 1;
+      padding: 10px 15px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+    }
+
+    .input-area button {
+      background: none;
+      border: none;
+      font-size: 22px;
+      cursor: pointer;
+    }
+  </style>
+  <script src="lang.js"></script>
+</head>
+<body>
+
+  <div class="header">
+    <button onclick="history.back()">←</button>
+    <div>
+      <h2 style="margin: 0;">AI Helper</h2>
+      <p style="margin: 0; color: gray;" id="question">Do you have any question?</p>
+    </div>
+  </div>
+
+  <div class="chat-area" id="chat">
+    <div class="bot-msg" id="firstMess">Hello! What can I help you?</div>
+  </div>
+
+  <div class="input-area">
+    <input type="text" id="userInput" placeholder="Text" />
+    <button onclick="sendMessage()">➤</button>
+  </div>
+
+  <script>
+    async function sendMessage() {
+      const input = document.getElementById("userInput");
+      const message = input.value.trim();
+      if (!message) return;
+
+      // 顯示使用者輸入
+      const chat = document.getElementById("chat");
+      const userBubble = document.createElement("div");
+      userBubble.className = "user-msg";
+      userBubble.textContent = message;
+      chat.appendChild(userBubble);
+      input.value = "";
+
+      // 呼叫後端 API
+      try {
+        const res = await fetch("http://127.0.0.1:8000/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: message })
+        });
+
+        const data = await res.json();
+        const botBubble = document.createElement("div");
+        botBubble.className = "bot-msg";
+        botBubble.textContent = data.reply || "Sorry, no response.";
+        chat.appendChild(botBubble);
+      } catch (err) {
+        const botBubble = document.createElement("div");
+        botBubble.className = "bot-msg";
+        botBubble.textContent = "Error: AI helper not available./錯誤 : AI小助手無法使用";
+        chat.appendChild(botBubble);
+        console.error(err);
+      }
+    }
+
+    // 讓使用者可以按 Enter 鍵送出訊息
+    document.getElementById("userInput").addEventListener("keydown", function (event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        sendMessage();
+      }
+    });
+
+    function updateaihelperLangUI(){
+      if (currentLang === 'zh-TW') {
+        document.querySelector('title').textContent = 'AI小助手'
+        document.querySelector('h2').textContent = 'AI小助手';
+        document.querySelector('#question').textContent = '今天有什麼需要協助的嗎?';
+        document.querySelector('#firstMess').textContent = '哈囉! 需要什麼幫助呢?'
+        document.querySelector('#userInput').placeholder = '訊息';
+      }
+    }
+    document.addEventListener('DOMContentLoaded',updateaihelperLangUI);
+
+  </script>
+
+</body>
+</html>

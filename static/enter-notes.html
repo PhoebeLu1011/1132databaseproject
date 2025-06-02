@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Daliy Note Detail-MediMate</title>
+        <style>
+            body {
+              font-family: Arial, sans-serif;
+              background-color: #fef3e2;
+              padding: 30px;
+              max-width: 600px;
+              margin: auto;
+            }
+        
+            h2 {
+              margin-bottom: 20px;
+            }
+        
+            label {
+              display: block;
+              font-weight: bold;
+              margin-top: 20px;
+            }
+        
+            input, textarea {
+              width: 100%;
+              padding: 10px;
+              font-size: 16px;
+              border-radius: 6px;
+              border: 1px solid #ccc;
+              margin-top: 5px;
+              box-sizing: border-box;
+            }
+        
+            .back-button {
+              display: inline-block;
+              font-size: 20px;
+              font-weight: bold;
+              background-color: white;
+              color: #333;
+              border-radius: 50%;
+              padding: 6px 12px;
+              box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+              cursor: pointer;
+              margin-bottom: 20px;
+            }
+            .subtitle { color: #777; margin-bottom: 20px; }
+            button {
+              margin-top: 30px;
+              padding: 12px 24px;
+              font-size: 16px;
+              background-color: #333;
+              color: white;
+              border: none;
+              border-radius: 6px;
+              cursor: pointer;
+            }
+        
+            button:hover {
+              background-color: #555;
+            }
+        </style>  
+        <script src="lang.js"></script>  
+    </head>
+    <body>
+        <div class="back-button" onclick="history.back()">←</div>
+        <h2>Daily Wellness Notes</h2>
+        <p class="subtitle" id="subtitle1">How Are You Feeling Today?</p>
+
+        <label for="date">Date</label>
+        <input type="date" id="date" required />
+
+        <label for="q1">Personal Health Reflections</label>
+        <p class="subtitle" id="subtitle2">Track how you feel and grow each day</p>
+        <textarea id="q1"></textarea>
+        <button class="button" id="saveBtn">SAVE</button>
+
+        <script>
+          const userData = JSON.parse(localStorage.getItem("userData"));
+          if (!userData || !localStorage.getItem("isLoggedIn")) {
+            window.location.href = "login.html";
+          }
+            // 預設填入今天日期
+          window.addEventListener('DOMContentLoaded', () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('date').value = today;
+          });
+
+          document.getElementById('saveBtn').addEventListener('click', () => {
+            const date = document.getElementById('date').value;
+            const note = document.getElementById('q1').value;
+            let alertMessage = "⚠️Please enter date and reflection!";
+            if (currentLang === "zh-TW") {
+              alertMessage = "⚠️請輸入日期和心得內容！";
+            }
+
+            if (!date || !note.trim()) {
+              alert(alertMessage);
+              return;
+            }
+
+          // 取得原有陣列
+            const existing = JSON.parse(localStorage.getItem("wellnessEntries") || "[]");
+
+          // 加入新的資料
+            existing.push({ date: date, reflection: note });
+
+          // 寫回 localStorage
+            localStorage.setItem("wellnessEntries", JSON.stringify(existing));
+
+            alert('已儲存至本地端！');
+
+          // 導回主頁（建議導回 wellnessnotes.html）
+            window.location.href = 'wellnessnotes.html';
+          });
+        function updateenternotesLangUI(){
+      if (currentLang === 'zh-TW') {
+        document.querySelector('title').textContent = '每日心情紀錄';
+        document.querySelector('label[for="date"]').textContent = '日期';
+        document.querySelector('h2').textContent = '每日心情紀錄';
+        document.querySelector('#subtitle1').textContent = '你今天感覺如何？';
+        document.querySelector('label[for="q1"]').textContent = '健康心得紀錄';
+        document.querySelector('#subtitle2').textContent = '紀錄每日狀態';
+        document.querySelector('#saveBtn').textContent = '儲存';
+      }
+    }
+      document.addEventListener('DOMContentLoaded',updateenternotesLangUI);
+        </script>
+    </body>
+</html>

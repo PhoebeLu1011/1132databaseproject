@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>About Us - MediMate</title>
+        <style>
+            body{
+                background-color: #fef3e2;
+                font-family: Arial, sans-serif;
+                padding: 30px;
+            }
+            .logo{
+                position: absolute;
+                top: 20px;
+                right: 20px;
+            }
+            h2{
+                font-size: 20px;
+                font-weight: bold;
+                margin-bottom: 20px;
+            }
+            ul{
+                list-style-type: none;
+                padding-left: 0;
+                margin-bottom: 40px;
+            }
+            ul li{
+                margin-bottom: 15px;
+                font-size: 16px;
+                cursor: pointer;
+                font-weight: bold;
+            }
+
+            button{
+                display: block;
+                width: 20%;
+                margin: 10px auto;
+                padding: 10px;
+                border-radius: 8px;
+                font-size: 16px;
+                border: 1px solid black;
+                cursor: pointer;
+                margin-left: 0;
+                margin-right: auto;
+            }
+            .back{
+                background-color: black;
+                color: white;
+            }
+        </style>
+        <script src="lang.js"></script>
+    </head>
+    <body>
+        <img src="medimate.png" class="logo" width="80"/>
+        <h2 id="aboutus">About Us</h2>
+        <ul>
+            <li id="team">Developed by: 王玟晽 & 盧姵帆</li>
+            <li id="teammate">Affiliation: Department of Technology, National Taiwan Normal University (NTNU)</li>
+            <li onclick="window.open('https://github.com/PhoebeLu1011/1132databaseproject', '_blank')"><img src="github.png" width="15">GitHub</li>
+        </ul>
+
+        <button class="back"  id="backto" onclick="history.back()">Back</button>
+
+    <script>
+        function updateaboutusLangUI(){
+            if (currentLang === 'zh-TW') {
+                document.querySelector('#aboutus').textContent = '關於我們';
+                document.querySelector('title').textContent = '關於我們';
+                document.querySelector('#team').textContent = '開發人員:';
+                document.querySelector('#teammate').textContent = '師大科技116 王玟晽、盧姵帆';
+                document.querySelector('#backto').textContent = '回上一頁';
+                
+            };
+        }
+        document.addEventListener('DOMContentLoaded',updateaboutusLangUI);
+    </script>
+
+    </body>
+</html>

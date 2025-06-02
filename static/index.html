@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Medimate - Welcome</title>
+        <style>
+            body{
+                background-color: #fef3e2;
+                font-family: Arial, sans-serif;
+                text-align: center;
+                padding-top: 100px;
+            }
+            .logo{
+                font-size: 36px;
+                font-weight: bold;
+                color: #e06666;
+                margin-bottom: 20px;
+            }
+            .buttons{
+                margin: 15px;
+                padding: 32px, 64px;
+                border-radius: 32px;
+                font-weight: bold;
+                font-size: 20px;
+                border: none;
+                cursor: pointer;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            .signin{
+                background-color: white;
+                border: 1px solid #ccc;
+            }
+            .signup{
+                background-color: #f29191;
+                color: white;
+            }
+
+            .lang-select {
+                margin-top: 30px;
+                font-size: 14px;
+            }
+            .signin:hover,.signup:hover {
+                transform: scale(1.05);
+                box-shadow: 0 4px 12px ;
+            }
+
+        </style>
+        <script src="lang.js"></script>
+    </head>
+    <body>
+        <div class="logo">
+            <img src="medimate.png" alt="Medimate Logo" width="300"/>
+        </div>
+        <div class="buttons">
+            <button class="signin" id="btnSignIn" onclick="location.href='login.html'">Sign In</button>
+            <button class="signup" id="btnSignUp" onclick="location.href='signup.html'">Sign Up</button>
+        </div>
+        <select class="lang-select" id="languageSelect" onchange="handleLangChange(this.value)">
+            <option value="en">English</option>
+            <option value="zh-TW">繁體中文</option>
+        </select>
+        <script>
+            console.log("現在在跑這份index!");
+            function updateLangUI(){
+                if(currentLang === 'zh-TW'){
+                    document.getElementById('btnSignIn').textContent = '登入';
+                    document.getElementById('btnSignUp').textContent = '註冊';
+                    
+                }else{
+                    document.getElementById('btnSignIn').textContent = 'Sign In';
+                    document.getElementById('btnSignUp').textContent = 'Sign Up';
+                }
+
+                document.getElementById('languageSelect').value =currentLang;
+            }
+            function handleLangChange(selectedLang){
+                setLang(selectedLang);
+                updateLangUI();
+            }
+
+            updateLangUI(); // 首次載入時根據 currentLang 更新文字
+        </script>
+    </body>
+</html>

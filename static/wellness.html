@@ -1,0 +1,242 @@
+<!DOCTYPE html><!--ai回復的-->
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Wellness Dashboard</title>
+  <style>
+    body {
+      background-color: #fef3e2;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    .back-button {
+      display: inline-block;
+      font-size: 20px;
+      font-weight: bold;
+      background-color: white;
+      color: #333;
+      border-radius: 50%;
+      padding: 6px 12px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    .record {
+      background-color: white;
+      padding: 15px;
+      margin-bottom: 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .record h2 {
+      font-size: 18px;
+      margin: 0 0 10px 0;
+    }
+
+    .record p {
+      margin: 0 0 10px 0;
+    }
+
+    .record button {
+      padding: 6px 12px;
+      border: 1px solid gray;
+      border-radius: 6px;
+      background-color: white;
+      cursor: pointer;
+    }
+
+    .record button:hover {
+      background-color: #ddd;
+    }
+
+    .delete-btn {
+      background-color: white;
+      color: black;
+      border: 1px solid #ccc;
+      padding: 6px 14px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+
+    .delete-btn:hover {
+      background-color: #eee;
+    }
+
+    .subtitle {
+      color: gray;
+      margin-bottom: 20px;
+    }
+
+    select {
+      margin-top: 10px;
+      margin-right: 10px;
+      padding: 6px;
+    }
+
+    #deleteArea {
+      margin-bottom: 30px;
+    }
+  </style>
+  <script src="lang.js"></script>
+</head>
+<body>
+  <div class="back-button" onclick="window.location.href='main.html'">🏠</div>
+
+  <div class="back-button" onclick="history.back()">←</div>
+
+  <h1>Wellness Dashboard</h1>
+  <p class="subtitle" id="subttit">AI-generated daily wellness summaries</p>
+
+  <!-- 🗑 Delete Button Area 
+  <button class="delete-btn" onclick="showDeleteList()">🗑 Delete Record</button>
+  <div id="deleteArea"></div>-->
+
+  <div id="wellnessContainer">Loading...</div>
+  
+  <div id="result" style="white-space: pre-wrap;"></div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+  const selected = JSON.parse(sessionStorage.getItem("selectedRecord") || "null");
+  const storageKey = "wellnessData";     //從storage拿避免重新load
+  const loadedFlag = `wellnessLoaded-${selected?.date}`;   //標記
+  const container = document.getElementById("wellnessContainer");
+  const allData = JSON.parse(localStorage.getItem(storageKey) || "[]");
+
+  if (!selected || !selected.date) {
+    displayWellness(allData);
+    return;
+  }
+  // 如果尚未載入過，就 fetch 後端資料
+  if (!sessionStorage.getItem(loadedFlag)) {
+
+    fetch("/api/wellness/summary", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(selected)
+    })
+    .then(res => {
+      if (!res.ok) throw new Error("Network response was not ok");
+      return res.json();
+    })
+    .then(data => {
+      const previous = JSON.parse(localStorage.getItem(storageKey) || "[]");
+      const cleaned = (Array.isArray(data) ? data : [data]).filter(
+        item => item && item.date && item.summary
+      );
+
+      cleaned.forEach(record => {
+      const exists = previous.find(p => p.date === record.date);
+        if (!exists) {
+          previous.push(record);
+        }
+      });
+
+      localStorage.setItem(storageKey, JSON.stringify(previous));
+      sessionStorage.setItem(loadedFlag, "true");
+      displayWellness(previous);
+    })
+    .catch(error => {
+      console.error("Error:", error);
+      container.innerHTML = "<p>Something went wrong.</p>";
+    });
+  } 
+  else {
+    // 已載入過，直接從 localStorage 讀
+    const allData = JSON.parse(localStorage.getItem(storageKey) || "[]");
+    displayWellness(allData);
+  }
+});
+  function displayWellness(data) {
+    const container = document.getElementById("wellnessContainer");
+    container.innerHTML = "";
+
+    if (data.length === 0) {
+      container.innerHTML = "<p>No data found.</p>";
+      return;
+    }
+
+    data.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    data.forEach(record => {
+      if (!record || !record.date || !record.summary) return;
+      const div = document.createElement("div");
+      div.className = "record";
+      div.innerHTML = `
+        <h2>${record.date}</h2>
+        <p class="summary-preview">
+          ${record.summary ? record.summary.slice(0, 100) + "..." : "AI is generating summary..."}
+        </p>
+        <p class="summary-full" style="display: none;">${record.summary}</p>
+        <button class="seemore">See More</button>
+        <button class="deletebtn">🗑 Delete</button>  
+        `; //我按鈕加在這裡提醒自己不要再找不到了
+      div.querySelector('.seemore').addEventListener('click', function () {
+        toggleSummary(this);
+      });
+      div.querySelector('.deletebtn').addEventListener('click', function () {
+        deleteRecord(record.date);
+      });
+
+      container.appendChild(div);
+    });
+    updatewellnessLangUI(); 
+  }
+
+  function deleteRecord(date) {
+    let confirmMsg = `Are you sure you want to delete the record for ${date}?`;
+      if (currentLang === "zh-TW") {
+        confirmMsg = `確定要刪除 ${date} 的資料嗎？`;
+      }
+      if (!confirm(confirmMsg)) return;
+    let data = JSON.parse(localStorage.getItem("wellnessData") || "[]");
+    data = data.filter(item => item.date !== date);
+    localStorage.setItem("wellnessData", JSON.stringify(data));
+    //刪除 loadedFlag，讓使用者可以重新送出
+    sessionStorage.removeItem(`wellnessLoaded-${date}`);
+    sessionStorage.removeItem(`wellnessTipShown-${date}`);
+    
+    displayWellness(data);
+  }
+
+  function toggleSummary(button) {
+    const preview = button.previousElementSibling.previousElementSibling;
+    const full = button.previousElementSibling;
+    const isHidden = full.style.display === "none";
+
+    if (isHidden) {
+      preview.style.display = "none";
+      full.style.display = "block";
+      button.textContent = currentLang === "zh-TW" ? "顯示更少" : "Close";
+    } else {
+      preview.style.display = "block";
+      full.style.display = "none";
+      button.textContent = currentLang === "zh-TW" ? "查看更多" : "See More";
+    }
+  }
+
+  function updatewellnessLangUI(){
+      if (currentLang === 'zh-TW') {
+        document.querySelector('h1').textContent = '健康儀表板';
+        document.querySelector('title').textContent = '健康儀表板';
+        document.querySelector('#subttit').textContent = 'AI 生成的每日健康摘要';
+        document.querySelectorAll('.seemore').forEach(btn => {
+          btn.textContent = '查看更多';
+        });
+        document.querySelectorAll('.deletebtn').forEach(btn => {
+          btn.textContent = '🗑 刪除資料';
+        });
+        
+      }
+    }
+    document.addEventListener('DOMContentLoaded',updatewellnessLangUI);
+
+</script>
+</body>
+</html>

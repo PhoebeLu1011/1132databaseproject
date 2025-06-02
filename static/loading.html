@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html> 
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Loading</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f9f1e6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+    }
+
+    .loading-box {
+      background-color: white;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      border: 1px solid #ddd;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 5px solid #ccc;
+      border-top: 5px solid #000;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 5px;
+    }
+
+    .sub-text {
+      font-size: 14px;
+      color: #444;
+    }
+  </style>
+  <script src="lang.js"></script>
+</head>
+<body>
+  <div class="loading-box">
+    <div class="spinner"></div>
+    <div class="loading-text" id="loadingText">Loading...</div>
+    <div class="sub-text" id="subText">Please wait<br>Thanks for your patience</div>
+  </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+  
+    const currentLang = navigator.language.startsWith("zh") ? "zh-TW" : "en";
+  
+    const langMap = {
+      'zh-TW': {
+        title: '載入中',
+        loadingText: 'AI 建議生成中',
+        subText: '請稍後<br>可能需要花一些時間，感謝您的耐心等待'
+      },
+      'en': {
+        title: 'Loading...',
+        loadingText: 'Generating AI Suggestions...',
+        subText: 'Please wait.<br>This may take a few moments. Thank you for your patience.'
+      }
+    };
+    const strings = langMap[currentLang] || langMap['en'];
+    document.title = strings.title;
+    document.getElementById('loadingText').textContent = strings.loadingText;
+    document.getElementById('subText').innerHTML = strings.subText;
+
+    
+    const selected = JSON.parse(sessionStorage.getItem("selectedRecord") || "null");
+    const storageKey = "wellnessData";
+    const loadedFlag = `wellnessLoaded-${selected?.date}`;
+
+    if (!selected || !selected.date) {
+      alert("⚠️ 找不到資料，請從 Medical Records 頁面重新選擇");
+      window.location.href = "medical.html";
+      return;
+    }
+
+    const wellnessData = JSON.parse(localStorage.getItem(storageKey) || "[]");
+    const exists = wellnessData.find(item => item.date === selected.date);
+
+    if (exists) {
+      sessionStorage.setItem(loadedFlag, "true");
+      window.location.href = "wellness.html";
+    } else {
+      fetch("/api/wellness/summary", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(selected)
+      })
+        .then(res => res.json())
+        .then(data => {
+          const record = Array.isArray(data) ? data[0] : data;
+          if (record && record.date && record.summary) {
+            wellnessData.push(record);
+            localStorage.setItem(storageKey, JSON.stringify(wellnessData));
+            sessionStorage.setItem(loadedFlag, "true");
+          }
+          window.location.href = "wellness.html";
+        })
+        .catch(err => {
+          alert("❌ AI 回覆失敗，請稍後再試");
+          console.error(err);
+          window.location.href = "medical.html";
+        });
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>MediMate - Starting</title>
+  <style>
+    body {
+      background-color: #fef3e2;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .logo {
+      text-align: center;
+      color: #f4795b;
+    }
+
+    .logo img {
+      width: 100px;
+      margin-bottom: 10px;
+    }
+
+    .logo h1 {
+      font-size: 28px;
+
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <img src="medimate.png" alt="MediMate Logo" />
+  </div>
+
+  <script>
+    // 2 秒後跳轉到主頁
+    setTimeout(() => {
+      window.location.href = "main.html";
+    }, 2000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Enter Medical Info</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fef3e2;
+      padding: 30px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-top: 5px;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 30px;
+      padding: 12px 24px;
+      font-size: 16px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #555;
+    }
+
+    .back-button {
+      display: inline-block;
+      font-size: 20px;
+      font-weight: bold;
+      background-color: white;
+      color: #333;
+      border-radius: 50%;
+      padding: 6px 12px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+  </style>
+  <script src="lang.js"></script>
+</head>
+<body>
+  <div class="back-button" onclick="window.location.href='main.html'">🏠</div>
+  <div class="back-button" onclick="history.back()">←</div>
+  
+  <h2>Enter Medical Info</h2>
+
+  <label for="date">Date</label>
+  <input type="date" id="date" required />
+
+  <label for="thisname">Title</label>
+  <textarea id="thisname" required></textarea>
+  
+  <label for="q1">Any significant medical history?</label>
+  <textarea id="q1"></textarea>
+
+  <label for="q2">Your current symptoms or discomfort</label>
+  <textarea id="q2"></textarea>
+
+  <label for="q3">Lifestyle habits</label>
+  <textarea id="q3"></textarea>
+
+  <label for="q4">Are you currently taking any medications?</label>
+  <textarea id="q4"></textarea>
+
+  <label for="q5">Doctor diagnosed condition</label>
+  <textarea id="q5" required></textarea>
+
+  <label for="q6">Specific concerns</label>
+  <textarea id="q6"></textarea>
+
+  <label for="q7">Age</label>
+  <input type="number" id="q7" />
+
+
+  <button id="submitbtn" onclick="submitRecord()">Submit</button>
+
+<script>
+  async function submitRecord() {
+    const requiredFields=[
+        "date", "q7", "thisname"
+    ];
+
+    for (const id of requiredFields){
+      const value = document.getElementById(id).value.trim();
+      if(!value){
+        let alertMsg = "⚠️ Please complete all required fields!";
+        if (currentLang === "zh-TW") {
+            alertMsg = "⚠️ 請完整填寫所有欄位！";
+        }
+        alert(alertMsg);
+        return;
+      }
+    }
+    const record = {
+      date: document.getElementById("date").value,
+      q1: document.getElementById("q1").value,
+      q2: document.getElementById("q2").value,
+      q3: document.getElementById("q3").value,
+      q4: document.getElementById("q4").value,
+      q5: document.getElementById("q5").value,
+      q6: document.getElementById("q6").value,
+      q7: document.getElementById("q7").value,
+      thisname: document.getElementById("thisname").value,
+      summary: ""
+    };
+    const allRecords = JSON.parse(localStorage.getItem("medicalRecords") || "[]");
+    
+    if (allRecords.length >= 20) {
+      let alertMessage = `⚠️To add more, please keep your records under 20.`;
+      if (currentLang === "zh-TW"){
+        alertMessage ="⚠️ 已達最多 20 筆紀錄上限，請先刪除一些紀錄再新增。";
+      }
+      alert(alertMessage);
+      return;
+    }
+    const alreadyExists = allRecords.some(r => r.date === record.date);
+    if (alreadyExists) {
+      let alertMessage =`⚠️️A record with the date ${record.date} already exists.Please change the date or delete the original before submitting again.`;
+      if(currentLang === "zh-TW") {
+        alert(`⚠️ ${record.date} 已經有一筆同樣日期的紀錄囉，請修改日期或刪除原紀錄後重新送出。`);
+      }
+    return; 
+    }
+    try {
+      const res = await fetch("http://localhost:8000/submit_entry", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(record)
+      });
+
+      const result = await res.json();
+      console.log("✅ 後端回應：", result);
+
+      // 存入 localStorage
+      const allRecords = JSON.parse(localStorage.getItem("medicalRecords") || "[]");
+      allRecords.push(record);
+      localStorage.setItem("medicalRecords", JSON.stringify(allRecords));
+      alert("Record saved!");
+      // 導向下一頁
+      window.location.href = "medical.html";
+
+    } catch (err) {
+      alert("❌ 發送錯誤：" + err.message);
+    }
+  }
+  function updateenterLangUI(){
+      if (currentLang === 'zh-TW') {
+        document.querySelector('title').textContent = '填寫病歷資料'
+        document.querySelector('h2').textContent = '填寫病歷資料'
+        document.querySelector('label[for="date"]').textContent = '日期';
+        document.querySelector('label[for="q1"]').textContent = '請問有無重大病史？';
+        document.querySelector('label[for="q2"]').textContent = '目前有哪些不適的情況？';
+        document.querySelector('label[for="q3"]').textContent = '生活習慣';
+        document.querySelector('label[for="q4"]').textContent = '目前是否有在服用任何藥物或其他治療';
+        document.querySelector('label[for="q5"]').textContent = '是否有經醫師診斷的結果';
+        document.querySelector('label[for="q6"]').textContent = '其他健康疑慮';
+        document.querySelector('label[for="q7"]').textContent = '年齡';
+        document.querySelector('label[for="thisname"]').textContent = '名稱' 
+        document.querySelector('#submitbtn').textContent = '提交'
+      }
+    }
+  
+    document.addEventListener('DOMContentLoaded',updateenterLangUI);
+</script>
+</body>
+</html>

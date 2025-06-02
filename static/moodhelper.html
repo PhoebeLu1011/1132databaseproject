@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>AI Mood Companion</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background-color: #f8f4ed;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    h2 {
+      color: #4a4a4a;
+      margin-bottom: 1rem;
+    }
+
+    #chat-box {
+      width: 100%;
+      max-width: 500px;
+      background: white;
+      border-radius: 10px;
+      padding: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    #chat-output {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-bottom: 1rem;
+    }
+
+    .msg {
+      margin: 8px 0;
+      padding: 10px 14px;
+      border-radius: 20px;
+      display: inline-block;
+      max-width: 80%;
+      word-break: break-word;
+    }
+
+    .user-msg {
+      background-color: #fff5da;
+      align-self: flex-end;
+      text-align: right;
+      float: right;
+      clear: both;
+    }
+
+    .ai-msg {
+      background-color: #e6e1f3;
+      align-self: flex-start;
+      text-align: left;
+      float: left;
+      clear: both;
+    }
+
+    #input-area {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    #user-input {
+      flex-grow: 1;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    #send-btn {
+      background-color: #a188cc;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #send-btn:hover {
+      background-color: #8e78b9;
+    }
+  </style>
+  <script src="lang.js"></script>
+</head>
+<body>
+  <h2>Anything on your mind today?</h2>
+
+  <div id="chat-box">
+    <div id="chat-output"></div>
+
+    <div id="input-area">
+      <input type="text" id="user-input" placeholder="Start a conversation with AI..." />
+      <button id="send-btn">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const chatOutput = document.getElementById("chat-output");
+    const inputField = document.getElementById("user-input");
+    const sendButton = document.getElementById("send-btn");
+
+    sendButton.addEventListener("click", async () => {
+      const message = inputField.value.trim();
+      if (!message) return;
+
+      // 顯示使用者訊息
+      const userMsg = document.createElement("div");
+      userMsg.className = "msg user-msg";
+      userMsg.textContent = message;
+      chatOutput.appendChild(userMsg);
+
+      inputField.value = "";
+
+      // 呼叫後端 API
+      const res = await fetch("http://localhost:8000/api/moodchat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: message })
+      });
+
+      const data = await res.json();
+      const reply = data.reply || "暫時無法回應，請稍後再試。Sorry, I can’t respond right now. Please try again later.";
+
+      // 顯示 AI 回覆
+      const aiMsg = document.createElement("div");
+      aiMsg.className = "msg ai-msg";
+      aiMsg.textContent = reply;
+      chatOutput.appendChild(aiMsg);
+
+      // 自動捲到底部
+      chatOutput.scrollTop = chatOutput.scrollHeight;
+    });
+
+    // 可按 Enter 發送
+    inputField.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") {
+        sendButton.click();
+      }
+    });
+    function updatemoodhelperLangUI(){
+      if (currentLang === 'zh-TW') {
+        document.querySelector('title').textContent = 'AI聊天機器人';
+        document.querySelector('h2').textContent = '今天想說什麼？';
+        document.querySelector('#user-input').placeholder = '輸入一句話與 AI 聊聊...';
+        document.querySelector('#send-btn').textContent = '送出';
+        
+      }
+    }
+    document.addEventListener('DOMContentLoaded',updatemoodhelperLangUI);
+  </script>
+</body>
+</html>
